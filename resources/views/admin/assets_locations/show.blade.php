@@ -1,0 +1,136 @@
+@extends('layouts.app')
+
+@section('content')
+    <h3 class="page-title">@lang('quickadmin.assets-locations.title')</h3>
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            {{ $assets_location->title }}
+        </div>
+
+        <div class="panel-body table-responsive">
+            <div class="row">
+                <div class="col-md-6">
+                    <table class="table table-bordered table-striped">
+                        <tr>
+                            <th style="background-color:grey; width: 200px; color: white;">@lang('quickadmin.assets-locations.fields.title')</th>
+                            <td field-key='title'>{{ $assets_location->title }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div><!-- Nav tabs -->
+<ul class="nav nav-tabs" role="tablist">
+    
+<li role="presentation" class="active"><a href="#assetshistory" aria-controls="assetshistory" role="tab" data-toggle="tab">Historique</a></li>
+<li role="presentation" class=""><a href="#assets" aria-controls="assets" role="tab" data-toggle="tab">Matériels</a></li>
+</ul>
+
+<!-- Tab panes -->
+<div class="tab-content">
+    
+<div role="tabpanel" class="tab-pane active" id="assetshistory">
+<table class="table table-bordered table-striped {{ count($assets_histories) > 0 ? 'datatable' : '' }}">
+    <thead style="background-color: orange;">
+        <tr>
+            <th>@lang('quickadmin.assets-history.created_at')</th>
+                        <th>@lang('quickadmin.assets-history.fields.asset')</th>
+                        <th>@lang('quickadmin.assets-history.fields.status')</th>
+                        <th>@lang('quickadmin.assets-history.fields.location')</th>
+                        <th>@lang('quickadmin.assets-history.fields.assigned-user')</th>
+                        
+        </tr>
+    </thead>
+
+    <tbody>
+        @if (count($assets_histories) > 0)
+            @foreach ($assets_histories as $assets_history)
+                <tr data-entry-id="{{ $assets_history->id }}">
+                    <td>{{ $assets_history->created_at or '' }}</td>
+                                <td field-key='asset'>{{ $assets_history->asset->title or '' }}</td>
+                                <td field-key='status'>{{ $assets_history->status->title or '' }}</td>
+                                <td field-key='location'>{{ $assets_history->location->title or '' }}</td>
+                                <td field-key='assigned_user'>{{ $assets_history->assigned_user->nom_prenom or '' }}</td>
+                                
+                </tr>
+            @endforeach
+        @else
+            <tr>
+                <td colspan="7">@lang('quickadmin.qa_no_entries_in_table')</td>
+            </tr>
+        @endif
+    </tbody>
+</table>
+</div>
+<div role="tabpanel" class="tab-pane " id="assets">
+<table class="table table-bordered table-striped {{ count($assets) > 0 ? 'datatable' : '' }}">
+    <thead style="background-color: orange;">
+        <tr>
+            <th>@lang('quickadmin.assets.fields.category')</th>
+                        <th>@lang('quickadmin.assets.fields.serial-number')</th>
+                        <th>@lang('quickadmin.assets.fields.title')</th>
+                        <th>@lang('quickadmin.assets.fields.photo1')</th>
+                        <th>@lang('quickadmin.assets.fields.photo2')</th>
+                        <th>@lang('quickadmin.assets.fields.photo3')</th>
+                        <th>@lang('quickadmin.assets.fields.date-acquisition')</th>
+                        <th>@lang('quickadmin.assets.fields.quantite-stock')</th>
+                        <th>@lang('quickadmin.assets.fields.status')</th>
+                        <th>@lang('quickadmin.assets.fields.location')</th>
+                        <th>@lang('quickadmin.assets.fields.assigned-user')</th>
+                        <th>@lang('quickadmin.assets.fields.notes')</th>
+                                                <th>&nbsp;</th>
+
+        </tr>
+    </thead>
+
+    <tbody>
+        @if (count($assets) > 0)
+            @foreach ($assets as $asset)
+                <tr data-entry-id="{{ $asset->id }}">
+                    <td field-key='category'>{{ $asset->category->title or '' }}</td>
+                                <td field-key='serial_number'>{{ $asset->serial_number }}</td>
+                                <td field-key='title'>{{ $asset->title }}</td>
+                                <td field-key='photo1'>@if($asset->photo1)<a href="{{ asset(env('UPLOAD_PATH').'/' . $asset->photo1) }}" target="_blank"><img src="{{ asset(env('UPLOAD_PATH').'/thumb/' . $asset->photo1) }}"/></a>@endif</td>
+                                <td field-key='photo2'>@if($asset->photo2)<a href="{{ asset(env('UPLOAD_PATH').'/' . $asset->photo2) }}" target="_blank"><img src="{{ asset(env('UPLOAD_PATH').'/thumb/' . $asset->photo2) }}"/></a>@endif</td>
+                                <td field-key='photo3'>@if($asset->photo3)<a href="{{ asset(env('UPLOAD_PATH').'/' . $asset->photo3) }}" target="_blank"><img src="{{ asset(env('UPLOAD_PATH').'/thumb/' . $asset->photo3) }}"/></a>@endif</td>
+                                <td field-key='date_acquisition'>{{ $asset->date_acquisition }}</td>
+                                <td field-key='quantite_stock'>{{ $asset->quantite_stock }}</td>
+                                <td field-key='status'>{{ $asset->status->title or '' }}</td>
+                                <td field-key='location'>{{ $asset->location->title or '' }}</td>
+                                <td field-key='assigned_user'>{{ $asset->assigned_user->nom_prenom or '' }}</td>
+                                <td field-key='notes'>{!! $asset->notes !!}</td>
+                                                                <td>
+                                    @can('asset_view')
+                                    <a href="{{ route('admin.assets.show',[$asset->id]) }}" class="btn btn-xs btn-primary">@lang('quickadmin.qa_view')</a>
+                                    @endcan
+                                    @can('asset_edit')
+                                    <a href="{{ route('admin.assets.edit',[$asset->id]) }}" class="btn btn-xs btn-info">@lang('quickadmin.qa_edit')</a>
+                                    @endcan
+                                    @can('asset_delete')
+{!! Form::open(array(
+                                        'style' => 'display: inline-block;',
+                                        'method' => 'DELETE',
+                                        'onsubmit' => "return confirm('".trans("quickadmin.qa_are_you_sure")."');",
+                                        'route' => ['admin.assets.destroy', $asset->id])) !!}
+                                    {!! Form::submit(trans('quickadmin.qa_delete'), array('class' => 'btn btn-xs btn-danger')) !!}
+                                    {!! Form::close() !!}
+                                    @endcan
+                                </td>
+
+                </tr>
+            @endforeach
+        @else
+            <tr>
+                <td colspan="19">@lang('quickadmin.qa_no_entries_in_table')</td>
+            </tr>
+        @endif
+    </tbody>
+</table>
+</div>
+</div>
+
+            <p>&nbsp;</p>
+
+            <a href="{{ route('admin.assets_locations.index') }}" class="btn btn-default">@lang('quickadmin.qa_back_to_list')</a>
+        </div>
+    </div>
+@stop
